@@ -4,7 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Flutter application named `load_vegetables_firestore` designed to work with Firebase/Firestore. The project uses Flutter SDK ^3.9.2 and targets multiple platforms (Android, Web).
+This is a Flutter application for managing a vegetables list with local storage persistence. Despite the name `load_vegetables_firestore`, the app currently uses SharedPreferences for local storage (not Firebase/Firestore). The project uses Flutter SDK ^3.9.2 and targets multiple platforms (Android, Web).
+
+### Current Features
+- Full CRUD operations for vegetables (Create, Read, Update, Delete)
+- Local data persistence using SharedPreferences
+- File import from text files with duplicate detection
+- Material 3 UI with dialogs for user interactions
 
 ## Development Commands
 
@@ -29,9 +35,17 @@ flutter build web                  # Build for web deployment
 
 ### Testing
 ```bash
-flutter test                       # Run all tests
-flutter test test/path/to/test.dart  # Run specific test file
+flutter test                       # Run all tests (35 tests total)
+flutter test --coverage            # Run tests with coverage report
+flutter test test/services/vegetable_service_test.dart  # Run unit tests only
+flutter test test/widget_test.dart # Run widget tests only
 ```
+
+**Test Structure:**
+- `test/services/vegetable_service_test.dart` - 18 unit tests for VegetableService
+- `test/widget_test.dart` - 17 widget tests for UI functionality
+- Tests use `SharedPreferences.setMockInitialValues()` for isolated testing
+- Coverage reports generated in `coverage/lcov.info`
 
 ### Code Quality
 ```bash
@@ -50,13 +64,26 @@ flutter pub get                    # Reinstall dependencies after clean
 
 ### Project Structure
 - `lib/` - Main application source code
-  - `main.dart` - Application entry point with MaterialApp setup
+  - `main.dart` - Application entry point with MaterialApp setup and UI components
+  - `services/vegetable_service.dart` - Business logic and SharedPreferences integration
+- `test/` - Test files
+  - `widget_test.dart` - Widget/UI tests
+  - `services/vegetable_service_test.dart` - Unit tests for VegetableService
 - `android/` - Android-specific configuration
 - `web/` - Web-specific assets and configuration
 - `build/` - Generated build artifacts (git-ignored)
+- `coverage/` - Test coverage reports (git-ignored)
 
-### Firebase Integration
-The project is configured to use Firebase. Critical Firebase configuration files are git-ignored for security:
+### Data Persistence
+The app currently uses SharedPreferences for local storage. All vegetables are stored as a string list under the key `'vegetables'`.
+
+**Service Layer:**
+- `VegetableService` handles all CRUD operations and data persistence
+- Methods are async and return Futures
+- Import functionality includes case-insensitive duplicate detection
+
+### Future Firebase Integration
+The project name suggests Firebase/Firestore integration may be planned. Firebase configuration files are git-ignored for security:
 - `firebase.json`
 - `android/app/google-services.json`
 - `lib/firebase_options.dart`
@@ -64,10 +91,10 @@ The project is configured to use Firebase. Critical Firebase configuration files
 - iOS/macOS: `GoogleService-Info.plist`
 - Windows: `google-services.json`
 
-**Important**: When setting up Firebase, these files must be obtained from the Firebase Console and placed in the appropriate directories. Never commit these files to version control.
+**Note**: These files must be obtained from the Firebase Console and never committed to version control.
 
 ### Linting
-The project uses `flutter_lints` (^5.0.0) with the standard Flutter linting rules from `package:flutter_lints/flutter.yaml`.
+The project uses `flutter_lints` (^6.0.0) with the standard Flutter linting rules from `package:flutter_lints/flutter.yaml`.
 
 ## Platform Support
 Currently configured for:
