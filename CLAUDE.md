@@ -37,14 +37,15 @@ flutter build web                  # Build for web deployment
 ```bash
 flutter test                       # Run all tests (35 tests total)
 flutter test --coverage            # Run tests with coverage report
-flutter test test/services/vegetable_service_test.dart  # Run unit tests only
+flutter test test/providers/vegetable_notifier_test.dart  # Run notifier tests only
 flutter test test/widget_test.dart # Run widget tests only
 ```
 
 **Test Structure:**
-- `test/services/vegetable_service_test.dart` - 18 unit tests for VegetableService
+- `test/providers/vegetable_notifier_test.dart` - 18 unit tests for VegetablesNotifier
 - `test/widget_test.dart` - 17 widget tests for UI functionality
-- Tests use `SharedPreferences.setMockInitialValues()` for isolated testing
+- Tests use Riverpod's `ProviderContainer` for isolated testing
+- Tests use `SharedPreferences.setMockInitialValues()` for data mocking
 - Coverage reports generated in `coverage/lcov.info`
 
 ### Code Quality
@@ -65,24 +66,26 @@ flutter pub get                    # Reinstall dependencies after clean
 ### Project Structure
 ```
 lib/
-├── main.dart                                          # Application entry point
+├── main.dart                                          # Application entry point with ProviderScope
 └── ui/
     └── vegetable_list/
+        ├── providers/
+        │   └── vegetable_providers.dart              # Riverpod providers and notifiers
         ├── view_model/
-        │   └── vegetable_list_view_model.dart        # VegetableService - business logic
+        │   └── vegetable_list_view_model.dart        # VegetableService - data layer
         └── widgets/
-            ├── vegetable_list_screen.dart            # Main screen (StatefulWidget)
+            ├── vegetable_list_screen.dart            # Main screen (ConsumerWidget)
             ├── vegetables_list_view.dart             # List display widget
             ├── vegetable_list_item.dart              # Individual list item
             ├── add_vegetable_dialog.dart             # Add dialog
             ├── edit_vegetable_dialog.dart            # Edit dialog
             ├── delete_vegetable_dialog.dart          # Delete confirmation dialog
-            └── import_button.dart                     # File import button
+            └── import_button.dart                     # File import button (ConsumerWidget)
 
 test/
 ├── widget_test.dart                                   # Widget/UI tests (17 tests)
-└── services/
-    └── vegetable_service_test.dart                    # Unit tests (18 tests)
+└── providers/
+    └── vegetable_notifier_test.dart                   # Notifier tests (18 tests)
 
 android/                                               # Android-specific configuration
 web/                                                   # Web-specific assets
@@ -91,19 +94,29 @@ coverage/                                              # Coverage reports (git-i
 ```
 
 ### Design Patterns
-The application follows a **feature-based organization** with separation of concerns:
+The application follows a **feature-based organization** with **Riverpod state management**:
+
+**State Management Layer** (`lib/ui/vegetable_list/providers/`):
+- `VegetablesNotifier` - AsyncNotifier managing vegetables state reactively
+- Provides methods: `add()`, `update()`, `delete()`, `import()`, `refresh()`
+- Uses `AsyncValue` for loading/error/data states
+- Automatic state updates and UI rebuilds
+- `vegetableServiceProvider` - Provides VegetableService singleton
+- `vegetablesProvider` - Main provider for vegetables state
 
 **UI Layer** (`lib/ui/vegetable_list/widgets/`):
-- `VegetableListScreen` - Main container widget managing state
+- `VegetableListScreen` - Main container using `ConsumerWidget`
 - `VegetablesListView` - Presentation widget for list display
 - `VegetableListItem` - Reusable component for each vegetable
 - Dialog widgets - Modular, reusable dialogs for user interactions
-- `ImportButton` - Self-contained import functionality
+- `ImportButton` - Self-contained import functionality using `ConsumerWidget`
+- Widgets use `ref.watch()` to observe state and `ref.read()` to trigger actions
 
-**Business Logic** (`lib/ui/vegetable_list/view_model/`):
+**Data Layer** (`lib/ui/vegetable_list/view_model/`):
 - `VegetableService` - Handles all CRUD operations and data persistence
 - Methods are async and return Futures
 - Import functionality includes case-insensitive duplicate detection
+- Isolated from UI through provider layer
 
 ### Data Persistence
 The app uses SharedPreferences for local storage. All vegetables are stored as a string list under the key `'vegetables'`.

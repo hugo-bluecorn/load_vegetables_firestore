@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-11-05
+
+### Added
+- **Riverpod State Management**: Integrated flutter_riverpod (^3.0.3) for reactive state management
+  - Created `VegetablesNotifier` extending `AsyncNotifier<List<String>>`
+  - Implemented provider layer with `vegetableServiceProvider` and `vegetablesProvider`
+  - Added comprehensive error handling with `AsyncValue`
+  - Implemented error states with retry functionality
+  - Added refresh capability to reload data
+- Enhanced error UI with user-friendly error messages and retry button
+
+### Changed
+- Converted `VegetableListScreen` from `StatefulWidget` to `ConsumerWidget`
+- Converted `ImportButton` from `StatelessWidget` to `ConsumerWidget`
+- Refactored state management from local state to Riverpod providers
+- Removed manual `setState()` calls in favor of reactive updates
+- Updated all UI widgets to use `ref.watch()` for observing state
+- Updated all UI widgets to use `ref.read()` for triggering actions
+
+### Improved
+- Automatic UI updates when state changes
+- Better loading state handling with `AsyncValue.loading`
+- Comprehensive error handling with `AsyncValue.error`
+- Eliminated prop drilling with global state access
+- Improved testability with `ProviderContainer`
+- More maintainable code with separation of state and UI
+
+### Testing
+- Refactored tests to use Riverpod's `ProviderContainer`
+- Renamed `test/services/vegetable_service_test.dart` to `test/providers/vegetable_notifier_test.dart`
+- Updated all widget tests to wrap with `ProviderScope`
+- All 35 tests passing (18 notifier + 17 widget tests)
+
+### Technical Details
+- Dependency: `flutter_riverpod: ^3.0.3`
+- State managed through `AsyncNotifier` pattern
+- Uses `AsyncValue.guard()` for safe async operations
+- Maintained backwards compatibility with existing data storage
+
 ## [0.2.0] - 2025-11-05
 
 ### Changed

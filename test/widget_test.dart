@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:load_vegetables_firestore/main.dart';
+import 'package:load_vegetables_firestore/ui/vegetable_list/providers/vegetable_providers.dart';
+import 'package:load_vegetables_firestore/ui/vegetable_list/view_model/vegetable_list_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -11,7 +14,7 @@ void main() {
     });
 
     testWidgets('App title is displayed', (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.text('Vegetables'), findsOneWidget);
@@ -19,7 +22,7 @@ void main() {
 
     testWidgets('Empty state is shown when no vegetables exist',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.text('No vegetables yet'), findsOneWidget);
@@ -29,7 +32,7 @@ void main() {
 
     testWidgets('Floating action button is present',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.byType(FloatingActionButton), findsOneWidget);
@@ -38,7 +41,7 @@ void main() {
 
     testWidgets('Import button is present in app bar',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.upload_file), findsOneWidget);
@@ -50,7 +53,7 @@ void main() {
         'vegetables': ['Carrot', 'Tomato', 'Broccoli'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.text('Carrot'), findsOneWidget);
@@ -65,7 +68,7 @@ void main() {
         'vegetables': ['Carrot'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.edit), findsOneWidget);
@@ -74,7 +77,7 @@ void main() {
 
     testWidgets('Tapping FAB shows add vegetable dialog',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(FloatingActionButton));
@@ -88,7 +91,7 @@ void main() {
 
     testWidgets('Can add a vegetable through dialog',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Open add dialog
@@ -110,7 +113,7 @@ void main() {
 
     testWidgets('Cancel button closes add dialog without adding',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Open add dialog
@@ -136,7 +139,7 @@ void main() {
         'vegetables': ['Carrot'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Tap edit button
@@ -153,7 +156,7 @@ void main() {
         'vegetables': ['Carrot'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Tap edit button
@@ -179,7 +182,7 @@ void main() {
         'vegetables': ['Carrot'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Tap delete button
@@ -198,7 +201,7 @@ void main() {
         'vegetables': ['Carrot', 'Tomato'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Find the delete button for Carrot
@@ -220,7 +223,7 @@ void main() {
         'vegetables': ['Carrot'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Tap delete button
@@ -248,7 +251,7 @@ void main() {
         ],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       expect(find.text('Carrot'), findsOneWidget);
@@ -269,7 +272,7 @@ void main() {
         'vegetables': List.generate(20, (index) => 'Vegetable $index'),
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // First item should be visible
@@ -288,7 +291,7 @@ void main() {
 
     testWidgets('Empty text in add dialog does not add vegetable',
         (WidgetTester tester) async {
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Open add dialog
@@ -315,7 +318,7 @@ void main() {
         'vegetables': ['Carrot'],
       });
 
-      await tester.pumpWidget(const MainApp());
+      await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
       // Should have eco icon for the vegetable item

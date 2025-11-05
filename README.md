@@ -94,30 +94,33 @@ dart format .                   # Format code
 ### Project Structure
 ```
 lib/
-├── main.dart                                          # Application entry point
+├── main.dart                                          # Application entry point with ProviderScope
 └── ui/
     └── vegetable_list/
+        ├── providers/
+        │   └── vegetable_providers.dart              # Riverpod providers and notifiers
         ├── view_model/
-        │   └── vegetable_list_view_model.dart        # VegetableService - business logic
+        │   └── vegetable_list_view_model.dart        # VegetableService - data layer
         └── widgets/
-            ├── vegetable_list_screen.dart            # Main screen
+            ├── vegetable_list_screen.dart            # Main screen (ConsumerWidget)
             ├── vegetables_list_view.dart             # List display widget
             ├── vegetable_list_item.dart              # Individual list item
             ├── add_vegetable_dialog.dart             # Add dialog
             ├── edit_vegetable_dialog.dart            # Edit dialog
             ├── delete_vegetable_dialog.dart          # Delete confirmation
-            └── import_button.dart                     # File import button
+            └── import_button.dart                     # File import button (ConsumerWidget)
 
 test/
 ├── widget_test.dart                                   # UI/Widget tests (17 tests)
-└── services/
-    └── vegetable_service_test.dart                    # Unit tests (18 tests)
+└── providers/
+    └── vegetable_notifier_test.dart                   # Notifier tests (18 tests)
 ```
 
-The application follows a **feature-based architecture** with modular, reusable components. UI widgets are separated from business logic, promoting maintainability and testability.
+The application follows a **feature-based architecture** with **Riverpod state management**. State is managed reactively with AsyncNotifier, providing automatic UI updates, loading states, and error handling.
 
 ## Dependencies
 
+- `flutter_riverpod: ^3.0.3` - State management solution
 - `shared_preferences: ^2.3.3` - Local data persistence
 - `file_picker: ^10.3.3` - File selection functionality
 - `flutter_lints: ^6.0.0` - Code quality and linting
@@ -127,10 +130,11 @@ The application follows a **feature-based architecture** with modular, reusable 
 - **Platform Support**: Android, Web
 - **Design System**: Material 3
 - **Architecture**: Feature-based with component separation
-- **State Management**: StatefulWidget with local state
+- **State Management**: Riverpod with AsyncNotifier
 - **Data Storage**: SharedPreferences (key-value store)
-- **UI Components**: Modular widgets for reusability and maintainability
-- **Test Coverage**: 35 tests (18 unit + 17 widget tests)
+- **UI Components**: Modular widgets with ConsumerWidget for reactive updates
+- **Error Handling**: Comprehensive error states with retry functionality
+- **Test Coverage**: 35 tests (18 notifier + 17 widget tests)
 
 ## License
 

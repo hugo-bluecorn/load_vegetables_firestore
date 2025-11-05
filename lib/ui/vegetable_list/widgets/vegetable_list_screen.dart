@@ -1,87 +1,115 @@
 import 'package:flutter/material.dart';
-import '../view_model/vegetable_list_view_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/vegetable_providers.dart';
 import 'add_vegetable_dialog.dart';
 import 'delete_vegetable_dialog.dart';
 import 'edit_vegetable_dialog.dart';
 import 'import_button.dart';
 import 'vegetables_list_view.dart';
 
-class VegetablesListScreen extends StatefulWidget {
+class VegetablesListScreen extends ConsumerWidget {
   const VegetablesListScreen({super.key});
 
-  @override
-  State<VegetablesListScreen> createState() => _VegetablesListScreenState();
-}
-
-class _VegetablesListScreenState extends State<VegetablesListScreen> {
-  final VegetableService _service = VegetableService();
-  List<String> _vegetables = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVegetables();
-  }
-
-  Future<void> _loadVegetables() async {
-    setState(() => _isLoading = true);
-    final vegetables = await _service.loadVegetables();
-    setState(() {
-      _vegetables = vegetables;
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _showAddDialog() async {
+  Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
     final result = await showAddVegetableDialog(context);
 
     if (result != null && result.isNotEmpty) {
-      await _service.addVegetable(result);
-      await _loadVegetables();
+      await ref.read(vegetablesProvider.notifier).add(result);
     }
   }
 
-  Future<void> _showEditDialog(int index) async {
-    final result = await showEditVegetableDialog(context, _vegetables[index]);
+  Future<void> _showEditDialog(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    String currentName,
+  ) async {
+    final result = await showEditVegetableDialog(context, currentName);
 
     if (result != null && result.isNotEmpty) {
-      await _service.updateVegetable(index, result);
-      await _loadVegetables();
+      await ref.read(vegetablesProvider.notifier).updateVegetable(index, result);
     }
   }
 
-  Future<void> _showDeleteDialog(int index) async {
-    final confirmed =
-        await showDeleteVegetableDialog(context, _vegetables[index]);
+  Future<void> _showDeleteDialog(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    String name,
+  ) async {
+    final confirmed = await showDeleteVegetableDialog(context, name);
 
     if (confirmed == true) {
-      await _service.deleteVegetable(index);
-      await _loadVegetables();
+      await ref.read(vegetablesProvider.notifier).delete(index);
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vegetablesAsync = ref.watch(vegetablesProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vegetables'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          ImportButton(
-            service: _service,
-            onImportComplete: _loadVegetables,
-          ),
+        actions: const [
+          ImportButton(),
         ],
       ),
-      body: VegetablesListView(
-        isLoading: _isLoading,
-        vegetables: _vegetables,
-        onEdit: _showEditDialog,
-        onDelete: _showDeleteDialog,
+      body: vegetablesAsync.when(
+        data: (vegetables) => VegetablesListView(
+          isLoading: false,
+          vegetables: vegetables,
+          onEdit: (index) => _showEditDialog(
+            context,
+            ref,
+            index,
+            vegetables[index],
+          ),
+          onDelete: (index) => _showDeleteDialog(
+            context,
+            ref,
+            index,
+            vegetables[index],
+          ),
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 60,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Error loading vegetables',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(vegetablesProvider.notifier).refresh();
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddDialog,
+        onPressed: () => _showAddDialog(context, ref),
         tooltip: 'Add Vegetable',
         child: const Icon(Icons.add),
       ),

@@ -1,7 +1,7 @@
 name: load_vegetables_firestore
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0
+version: 0.3.0
 
 environment:
   sdk: ^3.9.2
@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: ^3.0.3
   shared_preferences: ^2.3.3
   file_picker: ^10.3.3
 

@@ -2,19 +2,13 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import '../view_model/vegetable_list_view_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/vegetable_providers.dart';
 
-class ImportButton extends StatelessWidget {
-  final VegetableService service;
-  final VoidCallback onImportComplete;
+class ImportButton extends ConsumerWidget {
+  const ImportButton({super.key});
 
-  const ImportButton({
-    super.key,
-    required this.service,
-    required this.onImportComplete,
-  });
-
-  Future<void> _importFromFile(BuildContext context) async {
+  Future<void> _importFromFile(BuildContext context, WidgetRef ref) async {
     try {
       // Pick a text file
       final result = await FilePicker.platform.pickFiles(
@@ -31,7 +25,10 @@ class ImportButton extends StatelessWidget {
       if (filePath == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not read file path')),
+            const SnackBar(
+              content: Text('Could not read file path'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
         return;
@@ -50,17 +47,18 @@ class ImportButton extends StatelessWidget {
       if (vegetables.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No vegetables found in file')),
+            const SnackBar(
+              content: Text('No vegetables found in file'),
+              backgroundColor: Colors.orange,
+            ),
           );
         }
         return;
       }
 
-      // Import vegetables
-      final importedCount = await service.importVegetables(vegetables);
-
-      // Reload the list
-      onImportComplete();
+      // Import vegetables using Riverpod notifier
+      final importedCount =
+          await ref.read(vegetablesProvider.notifier).import(vegetables);
 
       // Show feedback
       if (context.mounted) {
@@ -69,8 +67,8 @@ class ImportButton extends StatelessWidget {
         final message = importedCount == 0
             ? 'No new vegetables to import (all duplicates)'
             : skippedCount == 0
-            ? 'Imported $importedCount vegetables'
-            : 'Imported $importedCount vegetables ($skippedCount duplicates skipped)';
+                ? 'Imported $importedCount vegetables'
+                : 'Imported $importedCount vegetables ($skippedCount duplicates skipped)';
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -81,18 +79,21 @@ class ImportButton extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error importing file: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error importing file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
       icon: const Icon(Icons.upload_file),
-      onPressed: () => _importFromFile(context),
+      onPressed: () => _importFromFile(context, ref),
       tooltip: 'Import from file',
     );
   }
