@@ -17,17 +17,13 @@ class VegetableListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key('vegetable_$index\_$vegetableName'),
+      key: Key('vegetable_${index}_$vegetableName'),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         color: Colors.red,
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
-          size: 32,
-        ),
+        child: const Icon(Icons.delete, color: Colors.white, size: 32),
       ),
       confirmDismiss: (direction) async {
         // Call the onDelete callback which handles showing the dialog
@@ -40,17 +36,10 @@ class VegetableListItem extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            Icons.eco,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          child: Icon(Icons.eco, color: Theme.of(context).colorScheme.primary),
         ),
         title: Text(vegetableName),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onEdit,
-          tooltip: 'Edit',
-        ),
+        onLongPress: onEdit,
       ),
     );
   }

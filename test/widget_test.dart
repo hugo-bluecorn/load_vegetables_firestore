@@ -60,7 +60,7 @@ void main() {
       expect(find.text('No vegetables yet'), findsNothing);
     });
 
-    testWidgets('Each vegetable has edit button',
+    testWidgets('Each vegetable is dismissible',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': ['Carrot'],
@@ -69,8 +69,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.edit), findsOneWidget);
       expect(find.byType(Dismissible), findsOneWidget);
+      expect(find.text('Carrot'), findsOneWidget);
     });
 
     testWidgets('Tapping FAB shows add vegetable dialog',
@@ -131,7 +131,7 @@ void main() {
       expect(find.text('No vegetables yet'), findsOneWidget);
     });
 
-    testWidgets('Tapping edit button shows edit dialog',
+    testWidgets('Long pressing vegetable shows edit dialog',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': ['Carrot'],
@@ -140,8 +140,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Tap edit button
-      await tester.tap(find.byIcon(Icons.edit));
+      // Long press on vegetable
+      await tester.longPress(find.text('Carrot'));
       await tester.pumpAndSettle();
 
       expect(find.text('Edit Vegetable'), findsOneWidget);
@@ -149,7 +149,7 @@ void main() {
       expect(find.text('Cancel'), findsOneWidget);
     });
 
-    testWidgets('Can edit a vegetable', (WidgetTester tester) async {
+    testWidgets('Can edit a vegetable with long press', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': ['Carrot'],
       });
@@ -157,8 +157,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Tap edit button
-      await tester.tap(find.byIcon(Icons.edit));
+      // Long press on vegetable
+      await tester.longPress(find.text('Carrot'));
       await tester.pumpAndSettle();
 
       // Clear and enter new text
@@ -259,8 +259,7 @@ void main() {
       expect(find.text('Potato'), findsOneWidget);
       expect(find.text('Cucumber'), findsOneWidget);
 
-      // Should have 6 edit buttons and 6 dismissible widgets
-      expect(find.byIcon(Icons.edit), findsNWidgets(6));
+      // Should have 6 dismissible widgets
       expect(find.byType(Dismissible), findsNWidgets(6));
     });
 
