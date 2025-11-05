@@ -16,36 +16,30 @@ class VegetableListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Icon(
+          Icons.eco,
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            Icons.eco,
-            color: Theme.of(context).colorScheme.primary,
+      title: Text(vegetableName),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: onEdit,
+            tooltip: 'Edit',
           ),
-        ),
-        title: Text(vegetableName),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: onEdit,
-              tooltip: 'Edit',
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete),
-              color: Colors.red,
-              onPressed: onDelete,
-              tooltip: 'Delete',
-            ),
-          ],
-        ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            color: Colors.red,
+            onPressed: onDelete,
+            tooltip: 'Delete',
+          ),
+        ],
       ),
     );
   }
