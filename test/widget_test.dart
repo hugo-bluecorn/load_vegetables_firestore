@@ -1,8 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:load_vegetables_firestore/main.dart';
+import 'package:load_vegetables_firestore/ui/vegetable_list/models/vegetable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Helper to create mock vegetables JSON for testing
+String createMockVegetablesJson(List<String> names) {
+  final vegetables = names
+      .map((name) => Vegetable(name: name))
+      .map((v) => v.toMap())
+      .toList();
+  return jsonEncode(vegetables);
+}
 
 void main() {
   group('VegetablesListScreen Widget Tests', () {
@@ -48,7 +59,7 @@ void main() {
     testWidgets('Displays vegetables when data exists',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato', 'Broccoli'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato', 'Broccoli']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -63,7 +74,7 @@ void main() {
     testWidgets('Each vegetable is dismissible',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -134,7 +145,7 @@ void main() {
     testWidgets('Long pressing vegetable shows edit dialog',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -151,7 +162,7 @@ void main() {
 
     testWidgets('Can edit a vegetable with long press', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -177,7 +188,7 @@ void main() {
     testWidgets('Swiping to dismiss shows confirmation dialog',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -196,7 +207,7 @@ void main() {
 
     testWidgets('Can delete a vegetable by swiping', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -218,7 +229,7 @@ void main() {
     testWidgets('Cancel button in delete dialog preserves vegetable',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -239,14 +250,14 @@ void main() {
     testWidgets('Displays multiple vegetables correctly',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': [
+        'vegetables': createMockVegetablesJson([
           'Carrot',
           'Tomato',
           'Broccoli',
           'Spinach',
           'Potato',
           'Cucumber',
-        ],
+        ]),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -266,7 +277,9 @@ void main() {
     testWidgets('ListView scrolls correctly with many items',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': List.generate(20, (index) => 'Vegetable $index'),
+        'vegetables': createMockVegetablesJson(
+          List.generate(20, (index) => 'Vegetable $index'),
+        ),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
@@ -312,7 +325,7 @@ void main() {
 
     testWidgets('Vegetables display with eco icon', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       await tester.pumpWidget(const ProviderScope(child: MainApp()));

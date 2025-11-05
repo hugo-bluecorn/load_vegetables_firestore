@@ -5,17 +5,21 @@ A Flutter application for managing a list of vegetables with local storage persi
 ## Features
 
 ### Core Functionality
-- **View Vegetables**: Display vegetables in a scrollable list with Material Design
+- **View Vegetables**: Display vegetables in a scrollable list with timestamps and Material Design
 - **Add Vegetables**: Add new vegetables through an intuitive dialog interface
-- **Edit Vegetables**: Modify existing vegetable names with a single tap
-- **Delete Vegetables**: Remove vegetables with confirmation dialog for safety
+- **Edit Vegetables**: Long press on any vegetable to modify its name
+- **Delete Vegetables**: Swipe left to delete with confirmation dialog for safety
 - **Import from File**: Load vegetables from text files with smart duplicate detection
+- **Automatic Timestamps**: Track when vegetables are created and last updated
 
 ### Key Highlights
 - 📱 Material 3 design with green color scheme
-- 💾 Local persistence using SharedPreferences
+- 👆 Gesture-based UI (swipe to delete, long press to edit)
+- 💾 Local persistence using SharedPreferences with JSON storage
 - 📁 File picker integration for importing text files
 - 🔍 Case-insensitive duplicate detection during import
+- ⏰ Automatic timestamp tracking for all vegetables
+- 🔄 Seamless data migration from older versions
 - ✨ Clean, user-friendly empty state
 - 🧭 Declarative routing with GoRouter
 - 🌐 Deep linking support for web platform
@@ -56,12 +60,13 @@ flutter run -d android     # Run on Android device/emulator
 3. Tap "Add" to save
 
 ### Editing Vegetables
-1. Tap the edit icon (✏️) on any vegetable item
+1. Long press on any vegetable item
 2. Modify the name in the dialog
 3. Tap "Save" to update
+4. The "Last Updated" timestamp will be automatically updated
 
 ### Deleting Vegetables
-1. Tap the delete icon (🗑️) on any vegetable item
+1. Swipe left on any vegetable item
 2. Confirm deletion in the dialog
 3. The vegetable will be removed from the list
 
@@ -101,6 +106,9 @@ lib/
 │   └── app_router.dart                               # GoRouter configuration and routes
 └── ui/
     └── vegetable_list/
+        ├── models/
+        │   ├── vegetable.dart                        # Vegetable model with HarvestState enum
+        │   └── vegetable.mapper.dart                 # Generated mapper code
         ├── providers/
         │   └── vegetable_providers.dart              # Riverpod providers and notifiers
         ├── view_model/
@@ -108,7 +116,7 @@ lib/
         └── widgets/
             ├── vegetable_list_screen.dart            # Main screen (ConsumerWidget)
             ├── vegetables_list_view.dart             # List display widget
-            ├── vegetable_list_item.dart              # Individual list item
+            ├── vegetable_list_item.dart              # Individual list item with gestures
             ├── add_vegetable_dialog.dart             # Add dialog
             ├── edit_vegetable_dialog.dart            # Edit dialog
             ├── delete_vegetable_dialog.dart          # Delete confirmation
@@ -128,6 +136,8 @@ The application follows a **feature-based architecture** with **Riverpod state m
 - `go_router: ^16.3.0` - Declarative routing and navigation
 - `shared_preferences: ^2.3.3` - Local data persistence
 - `file_picker: ^10.3.3` - File selection functionality
+- `dart_mappable: ^4.2.2` - Model serialization and JSON mapping
+- `intl: ^0.19.0` - Date formatting for timestamps
 - `flutter_lints: ^6.0.0` - Code quality and linting
 
 ## Technical Details
@@ -137,8 +147,11 @@ The application follows a **feature-based architecture** with **Riverpod state m
 - **Architecture**: Feature-based with component separation
 - **State Management**: Riverpod with AsyncNotifier
 - **Navigation**: GoRouter with declarative routing and deep linking
-- **Data Storage**: SharedPreferences (key-value store)
+- **Data Storage**: SharedPreferences with JSON format (automatic migration from legacy format)
+- **Data Model**: dart_mappable classes with automatic serialization
+- **UI Interactions**: Gesture-based (swipe to delete, long press to edit)
 - **UI Components**: Modular widgets with ConsumerWidget for reactive updates
+- **Timestamps**: Automatic tracking of creation and modification times
 - **Error Handling**: Comprehensive error states with retry functionality
 - **Test Coverage**: 38 tests (18 notifier + 17 widget tests)
 

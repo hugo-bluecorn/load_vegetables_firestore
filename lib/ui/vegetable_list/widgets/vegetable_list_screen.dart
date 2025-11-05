@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/vegetable.dart';
 import '../providers/vegetable_providers.dart';
 import 'add_vegetable_dialog.dart';
 import 'delete_vegetable_dialog.dart';
@@ -14,7 +15,7 @@ class VegetablesListScreen extends ConsumerWidget {
     final result = await showAddVegetableDialog(context);
 
     if (result != null && result.isNotEmpty) {
-      await ref.read(vegetablesProvider.notifier).add(result);
+      await ref.read(vegetablesProvider.notifier).add(Vegetable(name: result));
     }
   }
 
@@ -22,12 +23,18 @@ class VegetablesListScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     int index,
-    String currentName,
+    Vegetable currentVegetable,
   ) async {
-    final result = await showEditVegetableDialog(context, currentName);
+    final result = await showEditVegetableDialog(context, currentVegetable.name);
 
     if (result != null && result.isNotEmpty) {
-      await ref.read(vegetablesProvider.notifier).updateVegetable(index, result);
+      await ref.read(vegetablesProvider.notifier).updateVegetable(
+            index,
+            currentVegetable.copyWith(
+              name: result,
+              lastUpdatedAt: DateTime.now(),
+            ),
+          );
     }
   }
 
@@ -35,9 +42,9 @@ class VegetablesListScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     int index,
-    String name,
+    Vegetable vegetable,
   ) async {
-    final confirmed = await showDeleteVegetableDialog(context, name);
+    final confirmed = await showDeleteVegetableDialog(context, vegetable.name);
 
     if (confirmed == true) {
       await ref.read(vegetablesProvider.notifier).delete(index);

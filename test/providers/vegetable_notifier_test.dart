@@ -1,7 +1,18 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:load_vegetables_firestore/ui/vegetable_list/models/vegetable.dart';
 import 'package:load_vegetables_firestore/ui/vegetable_list/providers/vegetable_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Helper to create mock vegetables JSON for testing
+String createMockVegetablesJson(List<String> names) {
+  final vegetables = names
+      .map((name) => Vegetable(name: name))
+      .map((v) => v.toMap())
+      .toList();
+  return jsonEncode(vegetables);
+}
 
 void main() {
   group('VegetablesNotifier', () {
@@ -24,32 +35,32 @@ void main() {
 
     test('initial load returns stored vegetables', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato', 'Broccoli'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato', 'Broccoli']),
       });
 
       container = ProviderContainer();
       final vegetables = await container.read(vegetablesProvider.future);
 
       expect(vegetables, hasLength(3));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
-      expect(vegetables, contains('Broccoli'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Broccoli'));
     });
 
     test('add() adds a new vegetable to the list', () async {
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).add('Tomato');
+      await container.read(vegetablesProvider.notifier).add(Vegetable(name: 'Tomato'));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(1));
-      expect(vegetables, contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
     });
 
     test('add() with empty string does not add vegetable', () async {
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).add('');
+      await container.read(vegetablesProvider.notifier).add(Vegetable(name: ''));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, isEmpty);
@@ -58,7 +69,7 @@ void main() {
     test('add() with whitespace-only string does not add vegetable', () async {
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).add('   ');
+      await container.read(vegetablesProvider.notifier).add(Vegetable(name: '   '));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, isEmpty);
@@ -67,83 +78,83 @@ void main() {
     test('add() adds multiple vegetables', () async {
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).add('Carrot');
-      await container.read(vegetablesProvider.notifier).add('Tomato');
-      await container.read(vegetablesProvider.notifier).add('Broccoli');
+      await container.read(vegetablesProvider.notifier).add(Vegetable(name: 'Carrot'));
+      await container.read(vegetablesProvider.notifier).add(Vegetable(name: 'Tomato'));
+      await container.read(vegetablesProvider.notifier).add(Vegetable(name: 'Broccoli'));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(3));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
-      expect(vegetables, contains('Broccoli'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Broccoli'));
     });
 
     test('updateVegetable() updates vegetable at index', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato', 'Broccoli'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato', 'Broccoli']),
       });
 
       container = ProviderContainer();
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).updateVegetable(1, 'Cucumber');
+      await container.read(vegetablesProvider.notifier).updateVegetable(1, Vegetable(name: 'Cucumber'));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(3));
-      expect(vegetables[0], 'Carrot');
-      expect(vegetables[1], 'Cucumber');
-      expect(vegetables[2], 'Broccoli');
+      expect(vegetables[0].name, 'Carrot');
+      expect(vegetables[1].name, 'Cucumber');
+      expect(vegetables[2].name, 'Broccoli');
     });
 
     test('updateVegetable() with empty string does not update', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).updateVegetable(1, '');
+      await container.read(vegetablesProvider.notifier).updateVegetable(1, Vegetable(name: ''));
 
       final vegetables = await container.read(vegetablesProvider.future);
-      expect(vegetables[1], 'Tomato');
+      expect(vegetables[1].name, 'Tomato');
     });
 
     test('updateVegetable() handles invalid index gracefully', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).updateVegetable(5, 'Cucumber');
+      await container.read(vegetablesProvider.notifier).updateVegetable(5, Vegetable(name: 'Cucumber'));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(2));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
     });
 
     test('updateVegetable() handles negative index gracefully', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
       await container.read(vegetablesProvider.future);
 
-      await container.read(vegetablesProvider.notifier).updateVegetable(-1, 'Cucumber');
+      await container.read(vegetablesProvider.notifier).updateVegetable(-1, Vegetable(name: 'Cucumber'));
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(2));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
     });
 
     test('delete() removes vegetable at index', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato', 'Broccoli'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato', 'Broccoli']),
       });
 
       container = ProviderContainer();
@@ -153,14 +164,14 @@ void main() {
 
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(2));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Broccoli'));
-      expect(vegetables, isNot(contains('Tomato')));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Broccoli'));
+      expect(vegetables.map((v) => v.name), isNot(contains('Tomato')));
     });
 
     test('delete() handles invalid index gracefully', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
@@ -174,7 +185,7 @@ void main() {
 
     test('delete() handles negative index gracefully', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
@@ -188,7 +199,7 @@ void main() {
 
     test('import() adds new vegetables', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot'],
+        'vegetables': createMockVegetablesJson(['Carrot']),
       });
 
       container = ProviderContainer();
@@ -203,15 +214,15 @@ void main() {
       expect(count, 3);
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(4));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
-      expect(vegetables, contains('Broccoli'));
-      expect(vegetables, contains('Cucumber'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Broccoli'));
+      expect(vegetables.map((v) => v.name), contains('Cucumber'));
     });
 
     test('import() skips duplicates (case-insensitive)', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
@@ -227,10 +238,10 @@ void main() {
       expect(count, 2); // Only 2 new vegetables added
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(4));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
-      expect(vegetables, contains('Broccoli'));
-      expect(vegetables, contains('Cucumber'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Broccoli'));
+      expect(vegetables.map((v) => v.name), contains('Cucumber'));
     });
 
     test('import() skips empty lines', () async {
@@ -246,8 +257,8 @@ void main() {
       expect(count, 2);
       final vegetables = await container.read(vegetablesProvider.future);
       expect(vegetables, hasLength(2));
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
     });
 
     test('import() trims whitespace', () async {
@@ -261,14 +272,14 @@ void main() {
 
       expect(count, 3);
       final vegetables = await container.read(vegetablesProvider.future);
-      expect(vegetables, contains('Carrot'));
-      expect(vegetables, contains('Tomato'));
-      expect(vegetables, contains('Broccoli'));
+      expect(vegetables.map((v) => v.name), contains('Carrot'));
+      expect(vegetables.map((v) => v.name), contains('Tomato'));
+      expect(vegetables.map((v) => v.name), contains('Broccoli'));
     });
 
     test('import() returns 0 when all are duplicates', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
@@ -299,7 +310,7 @@ void main() {
 
     test('refresh() reloads vegetables from storage', () async {
       SharedPreferences.setMockInitialValues({
-        'vegetables': ['Carrot', 'Tomato'],
+        'vegetables': createMockVegetablesJson(['Carrot', 'Tomato']),
       });
 
       container = ProviderContainer();
@@ -308,16 +319,16 @@ void main() {
 
       // Manually update SharedPreferences to simulate external change
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList('vegetables', ['Cucumber', 'Broccoli', 'Spinach']);
+      await prefs.setString('vegetables', createMockVegetablesJson(['Cucumber', 'Broccoli', 'Spinach']));
 
       // Refresh should reload from storage
       await container.read(vegetablesProvider.notifier).refresh();
 
       final refreshedVegetables = await container.read(vegetablesProvider.future);
       expect(refreshedVegetables, hasLength(3));
-      expect(refreshedVegetables, contains('Cucumber'));
-      expect(refreshedVegetables, contains('Broccoli'));
-      expect(refreshedVegetables, contains('Spinach'));
+      expect(refreshedVegetables.map((v) => v.name), contains('Cucumber'));
+      expect(refreshedVegetables.map((v) => v.name), contains('Broccoli'));
+      expect(refreshedVegetables.map((v) => v.name), contains('Spinach'));
     });
   });
 }

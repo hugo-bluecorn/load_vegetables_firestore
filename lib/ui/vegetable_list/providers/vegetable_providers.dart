@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/vegetable.dart';
 import '../view_model/vegetable_list_view_model.dart';
 
 /// Provider for the VegetableService singleton
@@ -7,17 +8,17 @@ final vegetableServiceProvider = Provider<VegetableService>((ref) {
 });
 
 /// Notifier for managing vegetables state with AsyncValue
-class VegetablesNotifier extends AsyncNotifier<List<String>> {
+class VegetablesNotifier extends AsyncNotifier<List<Vegetable>> {
   @override
-  Future<List<String>> build() async {
+  Future<List<Vegetable>> build() async {
     // Initial load of vegetables
     final service = ref.read(vegetableServiceProvider);
     return await service.loadVegetables();
   }
 
   /// Add a new vegetable to the list
-  Future<void> add(String vegetable) async {
-    if (vegetable.trim().isEmpty) return;
+  Future<void> add(Vegetable vegetable) async {
+    if (vegetable.name.trim().isEmpty) return;
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -28,8 +29,8 @@ class VegetablesNotifier extends AsyncNotifier<List<String>> {
   }
 
   /// Update a vegetable at the given index
-  Future<void> updateVegetable(int index, String newValue) async {
-    if (newValue.trim().isEmpty) return;
+  Future<void> updateVegetable(int index, Vegetable newValue) async {
+    if (newValue.name.trim().isEmpty) return;
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -76,6 +77,6 @@ class VegetablesNotifier extends AsyncNotifier<List<String>> {
 
 /// Provider for the vegetables state
 final vegetablesProvider =
-    AsyncNotifierProvider<VegetablesNotifier, List<String>>(() {
+    AsyncNotifierProvider<VegetablesNotifier, List<Vegetable>>(() {
   return VegetablesNotifier();
 });

@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-11-05
+
+### Added
+- **Vegetable Data Model**: Implemented comprehensive model using dart_mappable
+  - Created `Vegetable` class with JSON serialization support
+  - Added `HarvestState` enum (scarce, enough, plenty) for future harvest tracking
+  - Added `createdAt` timestamp to track when vegetables are added
+  - Added `lastUpdatedAt` timestamp to track modifications
+  - Default harvest state is `scarce`
+  - Both timestamps default to current time
+- **Data Migration**: Automatic migration from old List<String> format to new JSON format
+  - Detects and converts legacy data on first load
+  - Preserves existing vegetable names
+  - Sets default timestamps and harvest state for migrated data
+- **Date Formatting**: Added intl package (^0.19.0) for timestamp display
+  - Format: "MMM d, y h:mm a" (e.g., "Nov 5, 2025 2:30 PM")
+  - Displays both created and last updated timestamps in UI
+
+### Changed
+- **Gesture-Based UI**: Replaced button actions with intuitive gestures
+  - Delete: Swipe left to dismiss vegetable (shows confirmation dialog)
+  - Edit: Long press on vegetable to edit name
+  - Removed edit and delete IconButtons for cleaner UI
+- **Data Storage**: Changed from List<String> to JSON string format
+  - Uses VegetableMapper for serialization/deserialization
+  - Supports rich vegetable data with timestamps and harvest state
+- **UI Display**: Updated VegetableListItem to show timestamps
+  - Three-line list tile with subtitle showing created and updated dates
+  - More informative vegetable entries
+
+### Improved
+- Cleaner, more modern UI without visible action buttons
+- Better user experience with familiar mobile gestures
+- Richer data model supporting future features (harvest tracking)
+- Automatic timestamp tracking for all vegetables
+- Seamless data migration preserves user data during upgrade
+
+### Testing
+- Updated all tests to use new Vegetable model
+- Added `createMockVegetablesJson` helper for test data
+- Updated widget tests for swipe and long press gestures
+- All 38 tests passing (18 notifier + 17 widget tests)
+
+### Technical Details
+- Dependencies:
+  - `dart_mappable: ^4.2.2` - Model serialization
+  - `dart_mappable_builder: ^4.2.3` (dev) - Code generation
+  - `intl: ^0.19.0` - Date formatting
+- Generated code: `lib/ui/vegetable_list/models/vegetable.mapper.dart`
+- Build command: `dart run build_runner build --delete-conflicting-outputs`
+- Backwards compatible through automatic data migration
+
 ## [0.4.0] - 2025-11-05
 
 ### Added

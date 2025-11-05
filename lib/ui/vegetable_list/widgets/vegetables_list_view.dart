@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../models/vegetable.dart';
 import 'vegetable_list_item.dart';
 
 class VegetablesListView extends StatelessWidget {
   final bool isLoading;
-  final List<String> vegetables;
+  final List<Vegetable> vegetables;
   final Function(int) onEdit;
   final Function(int) onDelete;
 
@@ -46,7 +47,7 @@ class VegetablesListView extends StatelessWidget {
       itemCount: vegetables.length,
       itemBuilder: (context, index) {
         return VegetableListItem(
-          vegetableName: vegetables[index],
+          vegetable: vegetables[index],
           index: index,
           onEdit: () => onEdit(index),
           onDelete: () => onDelete(index),
