@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:load_vegetables_firestore/main.dart';
-import 'package:load_vegetables_firestore/ui/vegetable_list/providers/vegetable_providers.dart';
-import 'package:load_vegetables_firestore/ui/vegetable_list/view_model/vegetable_list_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
