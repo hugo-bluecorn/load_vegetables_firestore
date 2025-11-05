@@ -17,7 +17,9 @@ A Flutter application for managing a list of vegetables with local storage persi
 - 📁 File picker integration for importing text files
 - 🔍 Case-insensitive duplicate detection during import
 - ✨ Clean, user-friendly empty state
-- 🧪 Comprehensive test coverage (35 tests)
+- 🧭 Declarative routing with GoRouter
+- 🌐 Deep linking support for web platform
+- 🧪 Comprehensive test coverage (38 tests)
 
 ## Getting Started
 
@@ -95,6 +97,8 @@ dart format .                   # Format code
 ```
 lib/
 ├── main.dart                                          # Application entry point with ProviderScope
+├── config/
+│   └── app_router.dart                               # GoRouter configuration and routes
 └── ui/
     └── vegetable_list/
         ├── providers/
@@ -121,6 +125,7 @@ The application follows a **feature-based architecture** with **Riverpod state m
 ## Dependencies
 
 - `flutter_riverpod: ^3.0.3` - State management solution
+- `go_router: ^16.3.0` - Declarative routing and navigation
 - `shared_preferences: ^2.3.3` - Local data persistence
 - `file_picker: ^10.3.3` - File selection functionality
 - `flutter_lints: ^6.0.0` - Code quality and linting
@@ -131,10 +136,11 @@ The application follows a **feature-based architecture** with **Riverpod state m
 - **Design System**: Material 3
 - **Architecture**: Feature-based with component separation
 - **State Management**: Riverpod with AsyncNotifier
+- **Navigation**: GoRouter with declarative routing and deep linking
 - **Data Storage**: SharedPreferences (key-value store)
 - **UI Components**: Modular widgets with ConsumerWidget for reactive updates
 - **Error Handling**: Comprehensive error states with retry functionality
-- **Test Coverage**: 35 tests (18 notifier + 17 widget tests)
+- **Test Coverage**: 38 tests (18 notifier + 17 widget tests)
 
 ## License
 

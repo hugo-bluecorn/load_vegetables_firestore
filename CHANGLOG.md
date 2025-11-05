@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-11-05
+
+### Added
+- **GoRouter Navigation**: Integrated go_router (^16.3.0) for declarative routing
+  - Created `lib/config/app_router.dart` with centralized route configuration
+  - Implemented `goRouterProvider` using Riverpod for router state management
+  - Added home route (`/`) with error handling for unknown routes
+  - Enabled deep linking support for web platform
+  - Set up debug logging for route diagnostics
+
+### Changed
+- Converted `MainApp` from `StatelessWidget` to `ConsumerWidget` for router access
+- Replaced `MaterialApp` with `MaterialApp.router` using `routerConfig`
+- Updated main.dart imports to use router configuration
+
+### Improved
+- Better navigation architecture with declarative routing
+- Enhanced web support with URL-based navigation
+- Foundation for future route guards and nested navigation
+- Cleaner separation of navigation logic from UI components
+
+### Testing
+- All 38 tests passing (18 notifier + 17 widget tests)
+- No breaking changes to existing functionality
+- Router integration fully compatible with existing Riverpod state management
+
+### Technical Details
+- Dependency: `go_router: ^16.3.0`
+- Router managed through Riverpod provider pattern
+- Debug logging enabled for development
+- Maintained backwards compatibility with all existing features
+
 ## [0.3.0] - 2025-11-05
 
 ### Added
