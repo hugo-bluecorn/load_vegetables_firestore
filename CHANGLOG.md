@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-11-05
+
+### Changed
+- **Architecture Refactoring**: Reorganized codebase with feature-based structure
+  - Created `lib/ui/vegetable_list/` feature directory
+  - Separated UI components into modular widgets:
+    - `vegetable_list_screen.dart` - Main screen container
+    - `vegetables_list_view.dart` - List display component
+    - `vegetable_list_item.dart` - Individual item widget
+    - `add_vegetable_dialog.dart` - Add dialog component
+    - `edit_vegetable_dialog.dart` - Edit dialog component
+    - `delete_vegetable_dialog.dart` - Delete confirmation dialog
+    - `import_button.dart` - File import button component
+  - Moved `VegetableService` to `lib/ui/vegetable_list/view_model/`
+  - Improved separation of concerns between UI and business logic
+
+### Improved
+- Enhanced code maintainability with component-based architecture
+- Better code reusability through widget separation
+- Clearer file organization following Flutter best practices
+- Updated documentation (CLAUDE.md, README.md) to reflect new structure
+
+### Technical Details
+- All 35 tests continue to pass (18 unit + 17 widget tests)
+- No changes to functionality or user-facing features
+- Maintained backwards compatibility with existing data storage
+
 ## [0.1.0] - 2025-11-04
 
 ### Added

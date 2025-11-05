@@ -63,24 +63,55 @@ flutter pub get                    # Reinstall dependencies after clean
 ## Architecture
 
 ### Project Structure
-- `lib/` - Main application source code
-  - `main.dart` - Application entry point with MaterialApp setup and UI components
-  - `services/vegetable_service.dart` - Business logic and SharedPreferences integration
-- `test/` - Test files
-  - `widget_test.dart` - Widget/UI tests
-  - `services/vegetable_service_test.dart` - Unit tests for VegetableService
-- `android/` - Android-specific configuration
-- `web/` - Web-specific assets and configuration
-- `build/` - Generated build artifacts (git-ignored)
-- `coverage/` - Test coverage reports (git-ignored)
+```
+lib/
+├── main.dart                                          # Application entry point
+└── ui/
+    └── vegetable_list/
+        ├── view_model/
+        │   └── vegetable_list_view_model.dart        # VegetableService - business logic
+        └── widgets/
+            ├── vegetable_list_screen.dart            # Main screen (StatefulWidget)
+            ├── vegetables_list_view.dart             # List display widget
+            ├── vegetable_list_item.dart              # Individual list item
+            ├── add_vegetable_dialog.dart             # Add dialog
+            ├── edit_vegetable_dialog.dart            # Edit dialog
+            ├── delete_vegetable_dialog.dart          # Delete confirmation dialog
+            └── import_button.dart                     # File import button
 
-### Data Persistence
-The app currently uses SharedPreferences for local storage. All vegetables are stored as a string list under the key `'vegetables'`.
+test/
+├── widget_test.dart                                   # Widget/UI tests (17 tests)
+└── services/
+    └── vegetable_service_test.dart                    # Unit tests (18 tests)
 
-**Service Layer:**
-- `VegetableService` handles all CRUD operations and data persistence
+android/                                               # Android-specific configuration
+web/                                                   # Web-specific assets
+build/                                                 # Build artifacts (git-ignored)
+coverage/                                              # Coverage reports (git-ignored)
+```
+
+### Design Patterns
+The application follows a **feature-based organization** with separation of concerns:
+
+**UI Layer** (`lib/ui/vegetable_list/widgets/`):
+- `VegetableListScreen` - Main container widget managing state
+- `VegetablesListView` - Presentation widget for list display
+- `VegetableListItem` - Reusable component for each vegetable
+- Dialog widgets - Modular, reusable dialogs for user interactions
+- `ImportButton` - Self-contained import functionality
+
+**Business Logic** (`lib/ui/vegetable_list/view_model/`):
+- `VegetableService` - Handles all CRUD operations and data persistence
 - Methods are async and return Futures
 - Import functionality includes case-insensitive duplicate detection
+
+### Data Persistence
+The app uses SharedPreferences for local storage. All vegetables are stored as a string list under the key `'vegetables'`.
+
+**Service Layer:**
+- `VegetableService` provides a clean API for data operations
+- All persistence logic is isolated from UI components
+- Supports: load, save, add, update, delete, and import operations
 
 ### Future Firebase Integration
 The project name suggests Firebase/Firestore integration may be planned. Firebase configuration files are git-ignored for security:

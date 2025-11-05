@@ -4,7 +4,7 @@ import 'package:load_vegetables_firestore/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  group('VegetablesListPage Widget Tests', () {
+  group('VegetablesListScreen Widget Tests', () {
     setUp(() {
       // Initialize with empty data for each test
       SharedPreferences.setMockInitialValues({});

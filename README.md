@@ -94,15 +94,27 @@ dart format .                   # Format code
 ### Project Structure
 ```
 lib/
-├── main.dart                   # App entry point and UI
-└── services/
-    └── vegetable_service.dart  # Business logic and data persistence
+├── main.dart                                          # Application entry point
+└── ui/
+    └── vegetable_list/
+        ├── view_model/
+        │   └── vegetable_list_view_model.dart        # VegetableService - business logic
+        └── widgets/
+            ├── vegetable_list_screen.dart            # Main screen
+            ├── vegetables_list_view.dart             # List display widget
+            ├── vegetable_list_item.dart              # Individual list item
+            ├── add_vegetable_dialog.dart             # Add dialog
+            ├── edit_vegetable_dialog.dart            # Edit dialog
+            ├── delete_vegetable_dialog.dart          # Delete confirmation
+            └── import_button.dart                     # File import button
 
 test/
-├── widget_test.dart            # UI/Widget tests (17 tests)
+├── widget_test.dart                                   # UI/Widget tests (17 tests)
 └── services/
-    └── vegetable_service_test.dart  # Unit tests (18 tests)
+    └── vegetable_service_test.dart                    # Unit tests (18 tests)
 ```
+
+The application follows a **feature-based architecture** with modular, reusable components. UI widgets are separated from business logic, promoting maintainability and testability.
 
 ## Dependencies
 
@@ -114,8 +126,10 @@ test/
 
 - **Platform Support**: Android, Web
 - **Design System**: Material 3
+- **Architecture**: Feature-based with component separation
 - **State Management**: StatefulWidget with local state
 - **Data Storage**: SharedPreferences (key-value store)
+- **UI Components**: Modular widgets for reusability and maintainability
 - **Test Coverage**: 35 tests (18 unit + 17 widget tests)
 
 ## License

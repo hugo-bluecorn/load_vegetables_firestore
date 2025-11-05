@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:load_vegetables_firestore/services/vegetable_service.dart';
+import 'package:load_vegetables_firestore/ui/vegetable_list/view_model/vegetable_list_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -225,10 +225,7 @@ void main() {
         'vegetables': ['Carrot', 'Tomato'],
       });
 
-      final count = await service.importVegetables([
-        'Carrot',
-        'Tomato',
-      ]);
+      final count = await service.importVegetables(['Carrot', 'Tomato']);
 
       expect(count, 0);
       final vegetables = await service.loadVegetables();
