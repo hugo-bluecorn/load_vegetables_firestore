@@ -60,7 +60,7 @@ void main() {
       expect(find.text('No vegetables yet'), findsNothing);
     });
 
-    testWidgets('Each vegetable has edit and delete buttons',
+    testWidgets('Each vegetable has edit button',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': ['Carrot'],
@@ -70,7 +70,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.edit), findsOneWidget);
-      expect(find.byIcon(Icons.delete), findsOneWidget);
+      expect(find.byType(Dismissible), findsOneWidget);
     });
 
     testWidgets('Tapping FAB shows add vegetable dialog',
@@ -174,7 +174,7 @@ void main() {
       expect(find.text('Carrot'), findsNothing);
     });
 
-    testWidgets('Tapping delete button shows confirmation dialog',
+    testWidgets('Swiping to dismiss shows confirmation dialog',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': ['Carrot'],
@@ -183,8 +183,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Tap delete button
-      await tester.tap(find.byIcon(Icons.delete));
+      // Swipe to dismiss
+      await tester.drag(find.text('Carrot'), const Offset(-500, 0));
       await tester.pumpAndSettle();
 
       expect(find.text('Delete Vegetable'), findsOneWidget);
@@ -194,7 +194,7 @@ void main() {
       expect(find.text('Delete'), findsWidgets);
     });
 
-    testWidgets('Can delete a vegetable', (WidgetTester tester) async {
+    testWidgets('Can delete a vegetable by swiping', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': ['Carrot', 'Tomato'],
       });
@@ -202,8 +202,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Find the delete button for Carrot
-      await tester.tap(find.byIcon(Icons.delete).first);
+      // Swipe to dismiss Carrot
+      await tester.drag(find.text('Carrot'), const Offset(-500, 0));
       await tester.pumpAndSettle();
 
       // Confirm deletion
@@ -224,8 +224,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Tap delete button
-      await tester.tap(find.byIcon(Icons.delete));
+      // Swipe to dismiss
+      await tester.drag(find.text('Carrot'), const Offset(-500, 0));
       await tester.pumpAndSettle();
 
       // Tap Cancel
@@ -259,9 +259,9 @@ void main() {
       expect(find.text('Potato'), findsOneWidget);
       expect(find.text('Cucumber'), findsOneWidget);
 
-      // Should have 6 edit buttons and 6 delete buttons
+      // Should have 6 edit buttons and 6 dismissible widgets
       expect(find.byIcon(Icons.edit), findsNWidgets(6));
-      expect(find.byIcon(Icons.delete), findsNWidgets(6));
+      expect(find.byType(Dismissible), findsNWidgets(6));
     });
 
     testWidgets('ListView scrolls correctly with many items',
