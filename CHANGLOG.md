@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-11-06
+
+### Added
+- **Harvest State Tabs**: Implemented tabbed navigation for filtering vegetables by harvest state
+  - Three tabs: Plenty, Enough, Scarce (ordered left to right)
+  - URL-based routing: `/plenty`, `/enough`, `/scarce`
+  - Each tab filters vegetables to show only matching harvest state
+  - Default view opens to "Plenty" tab
+- **Bottom Navigation Bar**: Material 3 NavigationBar with themed icons and indicators
+  - Dynamic indicator color changes based on selected tab
+  - Color-coded icons: Amber (Plenty), Blue (Enough), Purple (Scarce)
+  - Visual feedback with different shades for selected/unselected states
+- **Per-Tab Theming**: Each tab has a unique color scheme
+  - Plenty tab: Amber/Yellow theme (Colors.amber)
+  - Enough tab: Blue theme (Colors.blue)
+  - Scarce tab: Deep Purple theme (Colors.deepPurple)
+  - Theme colors applied to AppBar background and navigation indicator
+  - Title displays current filter (e.g., "Vegetables - Plenty")
+- **Harvest State Selection**: Added harvest state dropdown to Add and Edit dialogs
+  - Default to current tab's harvest state when adding
+  - Show current state when editing
+  - Options with emojis: 🌱 Scarce, 🌿 Enough, 🌾 Plenty
+- **Routing Structure**: Moved routing files to dedicated directory
+  - Created `lib/routing/` directory for routing-related files
+  - Moved from `lib/config/app_router.dart` to `lib/routing/app_router.dart`
+  - Added `lib/routing/harvest_state_shell_screen.dart` for navigation shell
+
+### Changed
+- **Navigation Architecture**: Refactored from single route to StatefulShellRoute
+  - Uses `StatefulShellRoute.indexedStack` for persistent tab state
+  - Each tab maintains independent navigation stack
+  - Uses `NoTransitionPage` for seamless tab switching without animations
+- **VegetableListScreen**: Now requires `harvestState` parameter
+  - Filters vegetables list based on provided harvest state
+  - Applies theme colors dynamically based on harvest state
+  - Title reflects current filter state
+- **Edit/Delete Operations**: Updated to handle filtered list indices
+  - Maps filtered list index to actual index in full vegetables list
+  - Ensures correct vegetable is edited/deleted when operating on filtered views
+
+### Improved
+- Better organization of vegetables by harvest availability
+- Enhanced visual hierarchy with color-coded navigation
+- Clearer context of which harvest state view is active
+- More intuitive workflow for categorizing vegetables
+- Improved project structure with dedicated routing directory
+
+### Testing
+- Updated test helper `createMockVegetablesJson` to default to `HarvestState.plenty`
+- Updated widget tests to expect "Vegetables - Plenty" as default title
+- All 38 tests passing (18 notifier + 17 widget tests)
+
+### Documentation
+- Added "Data Format" section to README.md
+  - Documented Vegetable JSON structure with field descriptions
+  - Included example of storage format in SharedPreferences
+  - Explained dart_mappable integration and data migration
+
+### Technical Details
+- Uses `StatefulShellRoute.indexedStack` from go_router for tab management
+- Updated `intl` package from ^0.19.0 to ^0.20.0
+- Theme applied using `Theme.copyWith()` with `ColorScheme.fromSeed()`
+- Navigation indicator uses theme color with 30% opacity
+- Icon colors use shade700 (unselected) and shade900 (selected)
+- Maintained backwards compatibility with existing data
+
 ## [0.5.0] - 2025-11-05
 
 ### Added

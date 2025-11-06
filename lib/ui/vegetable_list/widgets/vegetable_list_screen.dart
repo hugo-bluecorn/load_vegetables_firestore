@@ -9,13 +9,25 @@ import 'import_button.dart';
 import 'vegetables_list_view.dart';
 
 class VegetablesListScreen extends ConsumerWidget {
-  const VegetablesListScreen({super.key});
+  final HarvestState harvestState;
+
+  const VegetablesListScreen({required this.harvestState, super.key});
 
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
-    final result = await showAddVegetableDialog(context);
+    final result = await showAddVegetableDialog(
+      context,
+      defaultHarvestState: harvestState,
+    );
 
-    if (result != null && result.isNotEmpty) {
-      await ref.read(vegetablesProvider.notifier).add(Vegetable(name: result));
+    if (result != null) {
+      await ref
+          .read(vegetablesProvider.notifier)
+          .add(
+            Vegetable(
+              name: result['name'] as String,
+              harvestState: result['harvestState'] as HarvestState,
+            ),
+          );
     }
   }
 
@@ -25,13 +37,16 @@ class VegetablesListScreen extends ConsumerWidget {
     int index,
     Vegetable currentVegetable,
   ) async {
-    final result = await showEditVegetableDialog(context, currentVegetable.name);
+    final result = await showEditVegetableDialog(context, currentVegetable);
 
-    if (result != null && result.isNotEmpty) {
-      await ref.read(vegetablesProvider.notifier).updateVegetable(
+    if (result != null) {
+      await ref
+          .read(vegetablesProvider.notifier)
+          .updateVegetable(
             index,
             currentVegetable.copyWith(
-              name: result,
+              name: result['name'] as String,
+              harvestState: result['harvestState'] as HarvestState,
               lastUpdatedAt: DateTime.now(),
             ),
           );
@@ -51,74 +66,117 @@ class VegetablesListScreen extends ConsumerWidget {
     }
   }
 
+  String _getTitle() {
+    switch (harvestState) {
+      case HarvestState.scarce:
+        return 'Vegetables - Scarce';
+      case HarvestState.enough:
+        return 'Vegetables - Enough';
+      case HarvestState.plenty:
+        return 'Vegetables - Plenty';
+    }
+  }
+
+  Color _getThemeColor() {
+    switch (harvestState) {
+      case HarvestState.plenty:
+        return Colors.amber; // Yellow
+      case HarvestState.enough:
+        return Colors.blue;
+      case HarvestState.scarce:
+        return Colors.deepPurple; // Purple
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vegetablesAsync = ref.watch(vegetablesProvider);
+    final themeColor = _getThemeColor();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vegetables'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: const [
-          ImportButton(),
-        ],
-      ),
-      body: vegetablesAsync.when(
-        data: (vegetables) => VegetablesListView(
-          isLoading: false,
-          vegetables: vegetables,
-          onEdit: (index) => _showEditDialog(
-            context,
-            ref,
-            index,
-            vegetables[index],
-          ),
-          onDelete: (index) => _showDeleteDialog(
-            context,
-            ref,
-            index,
-            vegetables[index],
-          ),
-        ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 60,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Error loading vegetables',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                error.toString(),
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ref.read(vegetablesProvider.notifier).refresh();
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-              ),
-            ],
-          ),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: themeColor,
+          brightness: Theme.of(context).brightness,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddDialog(context, ref),
-        tooltip: 'Add Vegetable',
-        child: const Icon(Icons.add),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_getTitle()),
+          backgroundColor: themeColor,
+          foregroundColor: Colors.white,
+          actions: const [ImportButton()],
+        ),
+        body: vegetablesAsync.when(
+          data: (vegetables) {
+            // Filter vegetables by harvest state
+            final filteredVegetables = vegetables
+                .where((v) => v.harvestState == harvestState)
+                .toList();
+
+            return VegetablesListView(
+              isLoading: false,
+              vegetables: filteredVegetables,
+              onEdit: (index) {
+                // Find the actual index in the full vegetables list
+                final actualIndex = vegetables.indexOf(
+                  filteredVegetables[index],
+                );
+                return _showEditDialog(
+                  context,
+                  ref,
+                  actualIndex,
+                  filteredVegetables[index],
+                );
+              },
+              onDelete: (index) {
+                // Find the actual index in the full vegetables list
+                final actualIndex = vegetables.indexOf(
+                  filteredVegetables[index],
+                );
+                return _showDeleteDialog(
+                  context,
+                  ref,
+                  actualIndex,
+                  filteredVegetables[index],
+                );
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                const SizedBox(height: 16),
+                Text(
+                  'Error loading vegetables',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error.toString(),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    ref.read(vegetablesProvider.notifier).refresh();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showAddDialog(context, ref),
+          tooltip: 'Add Vegetable',
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

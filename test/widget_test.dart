@@ -7,9 +7,9 @@ import 'package:load_vegetables_firestore/ui/vegetable_list/models/vegetable.dar
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Helper to create mock vegetables JSON for testing
-String createMockVegetablesJson(List<String> names) {
+String createMockVegetablesJson(List<String> names, {HarvestState harvestState = HarvestState.plenty}) {
   final vegetables = names
-      .map((name) => Vegetable(name: name))
+      .map((name) => Vegetable(name: name, harvestState: harvestState))
       .map((v) => v.toMap())
       .toList();
   return jsonEncode(vegetables);
@@ -26,7 +26,8 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Vegetables'), findsOneWidget);
+      // Title now includes the current harvest state filter (default: Plenty)
+      expect(find.text('Vegetables - Plenty'), findsOneWidget);
     });
 
     testWidgets('Empty state is shown when no vegetables exist',
@@ -332,7 +333,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should have eco icon for the vegetable item
-      expect(find.byIcon(Icons.eco), findsOneWidget);
+      // Note: Multiple eco icons may exist (navigation bar + list items)
+      expect(find.byIcon(Icons.eco), findsWidgets);
     });
   });
 }

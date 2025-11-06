@@ -4,6 +4,7 @@ import '../models/vegetable.dart';
 
 class VegetableService {
   static const String _storageKey = 'vegetables';
+  static const String _filterKey = 'selected_harvest_filter';
 
   /// Load all vegetables from local storage
   Future<List<Vegetable>> loadVegetables() async {
@@ -106,5 +107,35 @@ class VegetableService {
     }
 
     return importedCount;
+  }
+
+  /// Load the selected harvest state filter from local storage
+  /// Returns null if no filter is saved (defaults to scarce in UI)
+  Future<HarvestState?> loadSelectedFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    final filterString = prefs.getString(_filterKey);
+
+    if (filterString == null) return null;
+
+    // Convert string to HarvestState enum
+    switch (filterString) {
+      case 'scarce':
+        return HarvestState.scarce;
+      case 'enough':
+        return HarvestState.enough;
+      case 'plenty':
+        return HarvestState.plenty;
+      default:
+        return null;
+    }
+  }
+
+  /// Save the selected harvest state filter to local storage
+  Future<void> saveSelectedFilter(HarvestState filter) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Convert HarvestState enum to string
+    final filterString = filter.name; // Uses enum name: 'scarce', 'enough', or 'plenty'
+    await prefs.setString(_filterKey, filterString);
   }
 }

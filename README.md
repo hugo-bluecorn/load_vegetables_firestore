@@ -130,6 +130,56 @@ test/
 
 The application follows a **feature-based architecture** with **Riverpod state management**. State is managed reactively with AsyncNotifier, providing automatic UI updates, loading states, and error handling.
 
+## Data Format
+
+### Vegetable JSON Structure
+
+Each vegetable is stored as a JSON object with the following structure:
+
+```json
+{
+  "name": "Carrot",
+  "harvestState": "plenty",
+  "createdAt": "2025-11-05T14:30:00.000",
+  "lastUpdatedAt": "2025-11-06T10:15:30.000"
+}
+```
+
+**Fields:**
+- `name` (String): The vegetable name
+- `harvestState` (String): The harvest state - one of `"scarce"`, `"enough"`, or `"plenty"`
+- `createdAt` (String): ISO 8601 timestamp of when the vegetable was first added
+- `lastUpdatedAt` (String): ISO 8601 timestamp of the last modification
+
+### Storage Format
+
+The complete vegetables list is stored in SharedPreferences as a JSON array:
+
+```json
+[
+  {
+    "name": "Carrot",
+    "harvestState": "plenty",
+    "createdAt": "2025-11-05T14:30:00.000",
+    "lastUpdatedAt": "2025-11-06T10:15:30.000"
+  },
+  {
+    "name": "Tomato",
+    "harvestState": "enough",
+    "createdAt": "2025-11-05T15:45:00.000",
+    "lastUpdatedAt": "2025-11-05T15:45:00.000"
+  },
+  {
+    "name": "Broccoli",
+    "harvestState": "scarce",
+    "createdAt": "2025-11-04T09:20:00.000",
+    "lastUpdatedAt": "2025-11-06T08:30:00.000"
+  }
+]
+```
+
+This JSON structure is handled automatically by the `dart_mappable` package through the generated `VegetableMapper` class. The app includes automatic migration from the legacy `List<String>` format to this new JSON format.
+
 ## Dependencies
 
 - `flutter_riverpod: ^3.0.3` - State management solution
