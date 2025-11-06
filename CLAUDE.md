@@ -9,7 +9,9 @@ This is a Flutter application for managing a vegetables list with local storage 
 ### Current Features
 - Full CRUD operations for vegetables (Create, Read, Update, Delete)
 - Vegetable model with timestamps (createdAt, lastUpdatedAt) and harvest state tracking
-- Gesture-based UI (swipe to delete, long press to edit)
+- Gesture-based UI (swipe to delete, long press for selection mode)
+- Multi-select mode with batch operations (edit, delete, move)
+- Harvest state filtering with tabbed navigation (Plenty, Enough, Scarce)
 - Local data persistence using SharedPreferences with JSON format
 - Automatic data migration from legacy List<String> format to new JSON format
 - File import from text files with duplicate detection
@@ -84,8 +86,9 @@ flutter pub get                    # Reinstall dependencies after clean
 ```
 lib/
 ├── main.dart                                          # Application entry point with ProviderScope
-├── config/
-│   └── app_router.dart                               # GoRouter configuration and routes
+├── routing/
+│   ├── app_router.dart                               # GoRouter configuration and routes
+│   └── harvest_state_shell_screen.dart               # Navigation shell with bottom bar
 └── ui/
     └── vegetable_list/
         ├── models/
@@ -96,12 +99,13 @@ lib/
         ├── view_model/
         │   └── vegetable_list_view_model.dart        # VegetableService - data layer
         └── widgets/
-            ├── vegetable_list_screen.dart            # Main screen (ConsumerWidget)
+            ├── vegetable_list_screen.dart            # Main screen (ConsumerStatefulWidget)
             ├── vegetables_list_view.dart             # List display widget
             ├── vegetable_list_item.dart              # Individual list item with gestures
             ├── add_vegetable_dialog.dart             # Add dialog
             ├── edit_vegetable_dialog.dart            # Edit dialog
             ├── delete_vegetable_dialog.dart          # Delete confirmation dialog
+            ├── move_vegetables_dialog.dart           # Move dialog for batch harvest state update
             └── import_button.dart                     # File import button (ConsumerWidget)
 
 test/
@@ -118,10 +122,12 @@ coverage/                                              # Coverage reports (git-i
 ### Design Patterns
 The application follows a **feature-based organization** with **Riverpod state management**:
 
-**Routing Layer** (`lib/config/`):
+**Routing Layer** (`lib/routing/`):
 - `GoRouter` configuration with declarative routing
 - Managed through Riverpod provider (`goRouterProvider`)
-- Home route (`/`) with error handling for unknown routes
+- StatefulShellRoute with tabbed navigation for harvest states
+- Three routes: `/plenty`, `/enough`, `/scarce` (default: `/plenty`)
+- `HarvestStateShellScreen` - Navigation shell with color-coded bottom navigation bar
 - Deep linking support enabled for web platform
 - Debug logging for route diagnostics
 
@@ -139,21 +145,33 @@ The application follows a **feature-based organization** with **Riverpod state m
 **State Management Layer** (`lib/ui/vegetable_list/providers/`):
 - `VegetablesNotifier` - AsyncNotifier managing vegetables state reactively
 - Works with `List<Vegetable>` instead of `List<String>`
-- Provides methods: `add()`, `updateVegetable()`, `delete()`, `import()`, `refresh()`
+- Provides methods:
+  - `add()`, `updateVegetable()`, `delete()` - Single item operations
+  - `deleteMultiple()`, `updateHarvestStateForMultiple()` - Batch operations
+  - `import()`, `refresh()` - Import and reload operations
 - Uses `AsyncValue` for loading/error/data states
 - Automatic state updates and UI rebuilds
 - `vegetableServiceProvider` - Provides VegetableService singleton
 - `vegetablesProvider` - Main provider for vegetables state
 
 **UI Layer** (`lib/ui/vegetable_list/widgets/`):
-- `VegetableListScreen` - Main container using `ConsumerWidget`
+- `VegetableListScreen` - Main container using `ConsumerStatefulWidget` with local selection state
+  - Filters vegetables by harvest state parameter
+  - Manages multi-select mode state and selected items
+  - Dynamic AppBar with selection actions (edit, delete, move)
+  - PopScope handling for back button during selection mode
 - `VegetablesListView` - Presentation widget for list display
-- `VegetableListItem` - Reusable component with gesture support:
-  - **Dismissible widget** for swipe-to-delete functionality
-  - **Long press** gesture for editing
+- `VegetableListItem` - Reusable component with gesture and selection support:
+  - **Dismissible widget** for swipe-to-delete (disabled in selection mode)
+  - **Long press** gesture for entering selection mode
+  - **Checkbox** leading widget when in selection mode
   - Displays vegetable name, created timestamp, and last updated timestamp
   - Three-line ListTile format with formatted dates
-- Dialog widgets - Modular, reusable dialogs for user interactions
+- Dialog widgets - Modular, reusable dialogs for user interactions:
+  - `AddVegetableDialog` - Add new vegetables with harvest state selection
+  - `EditVegetableDialog` - Edit existing vegetables
+  - `DeleteVegetableDialog` - Confirmation for single deletions
+  - `MoveVegetablesDialog` - Batch harvest state updates
 - `ImportButton` - Self-contained import functionality using `ConsumerWidget`
 - Widgets use `ref.watch()` to observe state and `ref.read()` to trigger actions
 
@@ -161,6 +179,9 @@ The application follows a **feature-based organization** with **Riverpod state m
 - `VegetableService` - Handles all CRUD operations and data persistence
 - Methods are async and return Futures
 - Works with `Vegetable` objects and uses `VegetableMapper` for serialization
+- Supports single and batch operations:
+  - `addVegetable()`, `updateVegetable()`, `deleteVegetable()` - Single operations
+  - `deleteMultiple()`, `updateHarvestStateForMultiple()` - Batch operations
 - Import functionality includes case-insensitive duplicate detection
 - **Data Migration**: Automatically detects and converts old `List<String>` format to new JSON format
 - Isolated from UI through provider layer
@@ -228,7 +249,7 @@ The app uses Material Design (`uses-material-design: true` in pubspec.yaml).
 - `shared_preferences: ^2.3.3` - Local data persistence
 - `file_picker: ^10.3.3` - File selection functionality
 - `dart_mappable: ^4.2.2` - Model serialization and JSON mapping
-- `intl: ^0.19.0` - Date formatting for timestamps
+- `intl: ^0.20.0` - Date formatting for timestamps
 
 ### Dev Dependencies
 - `flutter_lints: ^6.0.0` - Code quality and linting
@@ -238,10 +259,19 @@ The app uses Material Design (`uses-material-design: true` in pubspec.yaml).
 ## UI Interactions
 
 ### Gesture-Based Actions
+
+**Normal Mode:**
 - **Add Vegetable**: Tap the floating action button (➕)
-- **Edit Vegetable**: Long press on any vegetable item
 - **Delete Vegetable**: Swipe left on any vegetable item
+- **Enter Selection Mode**: Long press on any vegetable item
 - **Import File**: Tap the upload icon (📤) in the app bar
+
+**Selection Mode:**
+- **Toggle Selection**: Tap on any vegetable item
+- **Edit Single Item**: Tap edit icon (only enabled when 1 item selected)
+- **Delete Selected**: Tap delete icon, confirms before deletion
+- **Move Selected**: Tap move icon to change harvest state for all selected
+- **Exit Selection Mode**: Tap close (X) icon or press back button
 
 ### Timestamp Behavior
 - `createdAt`: Set when vegetable is first added (never changes)
@@ -249,10 +279,14 @@ The app uses Material Design (`uses-material-design: true` in pubspec.yaml).
 - Both timestamps are displayed in the UI with format: "MMM d, y h:mm a"
 
 ### Harvest State
-- Currently stored but not displayed in UI
-- Default value: `HarvestState.scarce`
-- Enum values: `scarce`, `enough`, `plenty`
-- Reserved for future feature implementation
+- Displayed via tabbed navigation with color-coded themes
+- Default value when adding vegetables: Current tab's harvest state
+- Enum values: `scarce` (🌱), `enough` (🌿), `plenty` (🌾)
+- Each tab has unique theme color:
+  - Plenty: Amber/Yellow (Colors.amber)
+  - Enough: Blue (Colors.blue)
+  - Scarce: Deep Purple (Colors.deepPurple)
+- Can be changed individually (add/edit dialogs) or in batch (move dialog)
 
 ## Development Guidelines
 - Always run `flutter pub upgrade --major-versions` after running `flutter pub get`

@@ -73,6 +73,33 @@ class VegetablesNotifier extends AsyncNotifier<List<Vegetable>> {
       return await service.loadVegetables();
     });
   }
+
+  /// Delete multiple vegetables from the list
+  Future<void> deleteMultiple(List<Vegetable> vegetables) async {
+    if (vegetables.isEmpty) return;
+
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(vegetableServiceProvider);
+      await service.deleteMultiple(vegetables);
+      return await service.loadVegetables();
+    });
+  }
+
+  /// Update harvest state for multiple vegetables
+  Future<void> updateHarvestStateForMultiple(
+    List<Vegetable> vegetables,
+    HarvestState newState,
+  ) async {
+    if (vegetables.isEmpty) return;
+
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(vegetableServiceProvider);
+      await service.updateHarvestStateForMultiple(vegetables, newState);
+      return await service.loadVegetables();
+    });
+  }
 }
 
 /// Provider for the vegetables state

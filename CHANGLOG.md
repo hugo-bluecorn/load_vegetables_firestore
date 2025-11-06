@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-11-06
+
+### Added
+- **Multi-Select Mode**: Implemented selection mode with batch operations
+  - Long press on any vegetable item enters selection mode
+  - First item automatically selected on long press
+  - Tap items to toggle selection (checkmarks displayed)
+  - AppBar title shows selection count (e.g., "3 selected")
+  - Close button (X) in AppBar to exit selection mode
+  - FAB (floating action button) hidden during selection mode
+  - Back button exits selection mode
+- **Batch Operations**: Added three AppBar actions during selection mode
+  - **Edit** (✏️): Enabled only when exactly 1 item selected, opens edit dialog
+  - **Delete** (🗑️): Deletes all selected vegetables with confirmation dialog
+  - **Move** (📁): Changes harvest state for all selected vegetables
+- **Move Vegetables Dialog**: New dialog for batch harvest state updates
+  - Shows count of vegetables being moved
+  - Dropdown to select target harvest state (Plenty 🌾, Enough 🌿, Scarce 🌱)
+  - Updates `lastUpdatedAt` timestamp for all moved vegetables
+- **Batch Service Methods**: Added to VegetableService
+  - `deleteMultiple()` - Delete multiple vegetables in one operation
+  - `updateHarvestStateForMultiple()` - Batch update harvest states
+- **Batch Notifier Methods**: Added to VegetablesNotifier
+  - `deleteMultiple()` - Reactive batch deletion
+  - `updateHarvestStateForMultiple()` - Reactive batch state updates
+
+### Changed
+- **Long Press Behavior**: Changed from "edit single item" to "enter selection mode"
+  - Removed long-press-to-edit gesture entirely
+  - Edit now only available through selection mode → edit icon (1 item selected)
+- **Swipe-to-Delete**: Now disabled during selection mode
+  - Prevents conflicting gestures during multi-select
+  - Swipe still works in normal mode
+- **VegetableListScreen**: Converted from `ConsumerWidget` to `ConsumerStatefulWidget`
+  - Added local state for selection mode (`_isSelectionMode`)
+  - Added local state for selected items (`Set<Vegetable> _selectedVegetables`)
+  - Dynamic AppBar actions based on mode and selection count
+  - PopScope handling for back button during selection mode
+- **VegetableListItem**: Enhanced with selection mode support
+  - Added `isSelectionMode`, `isSelected` parameters
+  - Checkbox replaces CircleAvatar icon when in selection mode
+  - `onTap` callback for selection toggle
+  - `onLongPress` callback for entering selection mode
+  - Removed `onEdit` parameter (no longer used)
+- **VegetablesListView**: Updated to pass selection state to items
+  - Added `isSelectionMode`, `selectedVegetables` parameters
+  - Added `onItemTap`, `onItemLongPress` callbacks
+  - Removed `onEdit` parameter
+
+### Fixed
+- Fixed deprecated `withOpacity` → `withValues(alpha:)` in harvest_state_shell_screen.dart
+- Fixed deprecated `value` → `initialValue` in move_vegetables_dialog.dart
+- Removed unused `_showEditDialog` method from vegetable_list_screen.dart
+
+### Testing
+- Updated widget tests to reflect new long-press behavior
+  - Test: "Long pressing vegetable enters selection mode"
+  - Test: "Can edit a vegetable in selection mode"
+- All 38 tests passing (18 notifier + 17 widget tests)
+- No linting issues (`flutter analyze` clean)
+
+### Technical Details
+- Selection state uses `Set<Vegetable>` instead of indices to avoid filter mapping issues
+- Batch operations match vegetables by name, createdAt, and harvestState
+- Selection automatically clears when exiting selection mode or completing actions
+- Edit action only enabled when exactly 1 item selected
+
 ## [0.6.0] - 2025-11-06
 
 ### Added

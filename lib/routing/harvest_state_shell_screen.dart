@@ -30,7 +30,7 @@ class HarvestStateShellScreen extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
-        indicatorColor: _getIndicatorColor().withOpacity(0.3),
+        indicatorColor: _getIndicatorColor().withValues(alpha: 0.3),
         onDestinationSelected: (index) {
           navigationShell.goBranch(
             index,

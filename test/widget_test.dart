@@ -143,7 +143,7 @@ void main() {
       expect(find.text('No vegetables yet'), findsOneWidget);
     });
 
-    testWidgets('Long pressing vegetable shows edit dialog',
+    testWidgets('Long pressing vegetable enters selection mode',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': createMockVegetablesJson(['Carrot']),
@@ -156,12 +156,15 @@ void main() {
       await tester.longPress(find.text('Carrot'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Edit Vegetable'), findsOneWidget);
-      expect(find.text('Save'), findsOneWidget);
-      expect(find.text('Cancel'), findsOneWidget);
+      // Should enter selection mode with "1 selected" in title
+      expect(find.text('1 selected'), findsOneWidget);
+      // Should show edit, delete, and move icons
+      expect(find.byIcon(Icons.edit), findsOneWidget);
+      expect(find.byIcon(Icons.delete), findsOneWidget);
+      expect(find.byIcon(Icons.drive_file_move), findsOneWidget);
     });
 
-    testWidgets('Can edit a vegetable with long press', (WidgetTester tester) async {
+    testWidgets('Can edit a vegetable in selection mode', (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({
         'vegetables': createMockVegetablesJson(['Carrot']),
       });
@@ -169,9 +172,16 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Long press on vegetable
+      // Long press on vegetable to enter selection mode
       await tester.longPress(find.text('Carrot'));
       await tester.pumpAndSettle();
+
+      // Tap edit icon
+      await tester.tap(find.byIcon(Icons.edit));
+      await tester.pumpAndSettle();
+
+      // Should show edit dialog
+      expect(find.text('Edit Vegetable'), findsOneWidget);
 
       // Clear and enter new text
       await tester.enterText(find.byType(TextField), 'Cucumber');

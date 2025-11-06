@@ -5,15 +5,21 @@ import 'vegetable_list_item.dart';
 class VegetablesListView extends StatelessWidget {
   final bool isLoading;
   final List<Vegetable> vegetables;
-  final Function(int) onEdit;
   final Function(int) onDelete;
+  final bool isSelectionMode;
+  final Set<Vegetable> selectedVegetables;
+  final Function(int)? onItemTap;
+  final Function(int)? onItemLongPress;
 
   const VegetablesListView({
     super.key,
     required this.isLoading,
     required this.vegetables,
-    required this.onEdit,
     required this.onDelete,
+    this.isSelectionMode = false,
+    this.selectedVegetables = const {},
+    this.onItemTap,
+    this.onItemLongPress,
   });
 
   @override
@@ -46,11 +52,15 @@ class VegetablesListView extends StatelessWidget {
     return ListView.builder(
       itemCount: vegetables.length,
       itemBuilder: (context, index) {
+        final vegetable = vegetables[index];
         return VegetableListItem(
-          vegetable: vegetables[index],
+          vegetable: vegetable,
           index: index,
-          onEdit: () => onEdit(index),
           onDelete: () => onDelete(index),
+          isSelectionMode: isSelectionMode,
+          isSelected: selectedVegetables.contains(vegetable),
+          onTap: onItemTap != null ? () => onItemTap!(index) : null,
+          onLongPress: onItemLongPress != null ? () => onItemLongPress!(index) : null,
         );
       },
     );

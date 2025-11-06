@@ -109,6 +109,47 @@ class VegetableService {
     return importedCount;
   }
 
+  /// Delete multiple vegetables from the list
+  Future<void> deleteMultiple(List<Vegetable> vegetablesToDelete) async {
+    final allVegetables = await loadVegetables();
+
+    // Remove vegetables that match those in the deletion list
+    allVegetables.removeWhere((veg) {
+      return vegetablesToDelete.any((toDelete) =>
+          toDelete.name == veg.name &&
+          toDelete.createdAt == veg.createdAt &&
+          toDelete.harvestState == veg.harvestState);
+    });
+
+    await saveVegetables(allVegetables);
+  }
+
+  /// Update harvest state for multiple vegetables
+  Future<void> updateHarvestStateForMultiple(
+    List<Vegetable> vegetablesToUpdate,
+    HarvestState newState,
+  ) async {
+    final allVegetables = await loadVegetables();
+
+    // Update each matching vegetable
+    for (int i = 0; i < allVegetables.length; i++) {
+      final veg = allVegetables[i];
+      final shouldUpdate = vegetablesToUpdate.any((toUpdate) =>
+          toUpdate.name == veg.name &&
+          toUpdate.createdAt == veg.createdAt &&
+          toUpdate.harvestState == veg.harvestState);
+
+      if (shouldUpdate) {
+        allVegetables[i] = veg.copyWith(
+          harvestState: newState,
+          lastUpdatedAt: DateTime.now(),
+        );
+      }
+    }
+
+    await saveVegetables(allVegetables);
+  }
+
   /// Load the selected harvest state filter from local storage
   /// Returns null if no filter is saved (defaults to scarce in UI)
   Future<HarvestState?> loadSelectedFilter() async {
