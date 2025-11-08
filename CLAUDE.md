@@ -105,8 +105,7 @@ lib/
             ├── add_vegetable_dialog.dart             # Add dialog
             ├── edit_vegetable_dialog.dart            # Edit dialog
             ├── delete_vegetable_dialog.dart          # Delete confirmation dialog
-            ├── move_vegetables_dialog.dart           # Move dialog for batch harvest state update
-            └── import_button.dart                     # File import button (ConsumerWidget)
+            └── move_vegetables_dialog.dart           # Move dialog for batch harvest state update
 
 test/
 ├── widget_test.dart                                   # Widget/UI tests (17 tests)
@@ -172,7 +171,7 @@ The application follows a **feature-based organization** with **Riverpod state m
   - `EditVegetableDialog` - Edit existing vegetables
   - `DeleteVegetableDialog` - Confirmation for single deletions
   - `MoveVegetablesDialog` - Batch harvest state updates
-- `ImportButton` - Self-contained import functionality using `ConsumerWidget`
+- `VegetableListScreen` - Contains AppBar menu with PopupMenuButton for add and import actions
 - Widgets use `ref.watch()` to observe state and `ref.read()` to trigger actions
 
 **Data Layer** (`lib/ui/vegetable_list/view_model/`):
@@ -261,10 +260,10 @@ The app uses Material Design (`uses-material-design: true` in pubspec.yaml).
 ### Gesture-Based Actions
 
 **Normal Mode:**
-- **Add Vegetable**: Tap the floating action button (➕)
+- **Add Vegetable**: Tap the menu icon (⋮) in the app bar, then select "Add vegetable"
 - **Delete Vegetable**: Swipe left on any vegetable item
 - **Enter Selection Mode**: Long press on any vegetable item
-- **Import File**: Tap the upload icon (📤) in the app bar
+- **Import File**: Tap the menu icon (⋮) in the app bar, then select "Import from file"
 
 **Selection Mode:**
 - **Toggle Selection**: Tap on any vegetable item

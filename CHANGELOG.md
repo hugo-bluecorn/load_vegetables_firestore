@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-11-08
+
+### Added
+- **AppBar Menu**: Implemented PopupMenuButton in AppBar with three-dot menu icon
+  - Menu contains "Add vegetable" and "Import from file" options
+  - Menu icons styled with dark color (Colors.grey[800]) for better visibility
+  - Menu uses Expanded widgets to prevent layout overflow
+  - Menu hidden during selection mode (like previous FAB behavior)
+- **Consolidated Actions**: Moved add and import functionality to AppBar menu
+  - Import logic integrated directly into VegetableListScreen
+  - All functionality preserved with improved UX
+
+### Removed
+- **Floating Action Button (FAB)**: Removed FAB entirely
+- **ImportButton widget**: Removed separate import_button.dart file
+  - Import functionality now integrated into main screen
+
+### Changed
+- **Empty State Message**: Updated from "Tap + to add a vegetable" to "Use the menu to add vegetables"
+- **UI Interactions**: All add and import actions now accessible through AppBar menu
+- **VegetableListScreen**: Added `_handleImport()` method for import functionality
+
+### Updated
+- **Documentation**: Updated CLAUDE.md and README.md to reflect new menu structure
+- **Tests**: Updated all 4 menu-related widget tests to use AppBar-specific finder
+  - All 37 tests passing (18 notifier + 17 widget tests)
+
+### Technical Details
+- Uses Material 3 PopupMenuButton pattern with Icons.more_vert
+- Menu items use Row with Icon, SizedBox, and Expanded Text
+- Icons sized at 20px for optimal display
+- No linting issues (`flutter analyze` clean)
+
 ## [0.7.1] - 2025-11-08
 
 ### Changed

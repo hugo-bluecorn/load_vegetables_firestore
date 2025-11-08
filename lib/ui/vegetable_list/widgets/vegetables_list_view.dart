@@ -41,7 +41,7 @@ class VegetablesListView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Tap + to add a vegetable',
+              'Use the menu to add vegetables',
               style: TextStyle(color: Colors.grey[500]),
             ),
           ],

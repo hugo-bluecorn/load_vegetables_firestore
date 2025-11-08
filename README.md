@@ -66,10 +66,11 @@ flutter run -d android     # Run on Android device/emulator
 4. Each tab has a unique color theme
 
 ### Adding Vegetables
-1. Tap the floating action button (➕) at the bottom right
-2. Enter the vegetable name in the dialog
-3. Select harvest state (defaults to current tab)
-4. Tap "Add" to save
+1. Tap the menu icon (⋮) in the app bar
+2. Select "Add vegetable" from the menu
+3. Enter the vegetable name in the dialog
+4. Select harvest state (defaults to current tab)
+5. Tap "Add" to save
 
 ### Single Item Operations
 
@@ -114,10 +115,11 @@ flutter run -d android     # Run on Android device/emulator
 - Complete an action (edit/delete/move)
 
 ### Importing from File
-1. Tap the upload icon (📤) in the app bar
-2. Select a text file from your device
-3. The app will import vegetables, skipping duplicates
-4. A snackbar will show the import results
+1. Tap the menu icon (⋮) in the app bar
+2. Select "Import from file" from the menu
+3. Select a text file from your device
+4. The app will import vegetables, skipping duplicates
+5. A snackbar will show the import results
 
 **File Format**: One vegetable per line
 ```
@@ -164,8 +166,7 @@ lib/
             ├── add_vegetable_dialog.dart             # Add dialog
             ├── edit_vegetable_dialog.dart            # Edit dialog
             ├── delete_vegetable_dialog.dart          # Delete confirmation
-            ├── move_vegetables_dialog.dart           # Move dialog for batch updates
-            └── import_button.dart                     # File import button (ConsumerWidget)
+            └── move_vegetables_dialog.dart           # Move dialog for batch updates
 
 test/
 ├── widget_test.dart                                   # UI/Widget tests (17 tests)

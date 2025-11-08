@@ -36,25 +36,17 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('No vegetables yet'), findsOneWidget);
-      expect(find.text('Tap + to add a vegetable'), findsOneWidget);
+      expect(find.text('Use the menu to add vegetables'), findsOneWidget);
       expect(find.byIcon(Icons.eco_outlined), findsOneWidget);
     });
 
-    testWidgets('Floating action button is present',
+    testWidgets('Menu button is present in app bar',
         (WidgetTester tester) async {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsOneWidget);
-    });
-
-    testWidgets('Import button is present in app bar',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const ProviderScope(child: MainApp()));
-      await tester.pumpAndSettle();
-
-      expect(find.byIcon(Icons.upload_file), findsOneWidget);
+      expect(find.byType(PopupMenuButton<String>), findsOneWidget);
+      expect(find.byIcon(Icons.more_vert), findsOneWidget);
     });
 
     testWidgets('Displays vegetables when data exists',
@@ -85,27 +77,40 @@ void main() {
       expect(find.text('Carrot'), findsOneWidget);
     });
 
-    testWidgets('Tapping FAB shows add vegetable dialog',
+    testWidgets('Tapping menu button shows add and import options',
         (WidgetTester tester) async {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pumpAndSettle();
+      // Find the menu icon within the AppBar and tap it
+      final menuIcon = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.more_vert),
+      );
+      await tester.tap(menuIcon);
+      await tester.pump(); // Start the menu animation
+      await tester.pump(const Duration(seconds: 1)); // Wait for animation to complete
 
-      expect(find.text('Add Vegetable'), findsOneWidget);
-      expect(find.text('Cancel'), findsOneWidget);
-      expect(find.text('Add'), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('Add vegetable'), findsOneWidget);
+      expect(find.text('Import from file'), findsOneWidget);
     });
 
-    testWidgets('Can add a vegetable through dialog',
+    testWidgets('Can add a vegetable through menu and dialog',
         (WidgetTester tester) async {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Open add dialog
-      await tester.tap(find.byType(FloatingActionButton));
+      // Open menu
+      final menuIcon = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.more_vert),
+      );
+      await tester.tap(menuIcon);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      // Tap "Add vegetable" menu item
+      await tester.tap(find.text('Add vegetable'));
       await tester.pumpAndSettle();
 
       // Enter vegetable name
@@ -126,8 +131,17 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Open add dialog
-      await tester.tap(find.byType(FloatingActionButton));
+      // Open menu
+      final menuIcon = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.more_vert),
+      );
+      await tester.tap(menuIcon);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      // Tap "Add vegetable" menu item
+      await tester.tap(find.text('Add vegetable'));
       await tester.pumpAndSettle();
 
       // Enter text
@@ -315,8 +329,17 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: MainApp()));
       await tester.pumpAndSettle();
 
-      // Open add dialog
-      await tester.tap(find.byType(FloatingActionButton));
+      // Open menu
+      final menuIcon = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.more_vert),
+      );
+      await tester.tap(menuIcon);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      // Tap "Add vegetable" menu item
+      await tester.tap(find.text('Add vegetable'));
       await tester.pumpAndSettle();
 
       // Don't enter any text, just tap Add

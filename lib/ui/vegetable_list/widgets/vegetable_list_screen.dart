@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/vegetable.dart';
@@ -5,7 +8,6 @@ import '../providers/vegetable_providers.dart';
 import 'add_vegetable_dialog.dart';
 import 'delete_vegetable_dialog.dart';
 import 'edit_vegetable_dialog.dart';
-import 'import_button.dart';
 import 'move_vegetables_dialog.dart';
 import 'vegetables_list_view.dart';
 
@@ -173,6 +175,87 @@ class _VegetablesListScreenState extends ConsumerState<VegetablesListScreen> {
     }
   }
 
+  Future<void> _handleImport(BuildContext context) async {
+    try {
+      // Pick a text file
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['txt'],
+        allowMultiple: false,
+      );
+
+      if (result == null || result.files.isEmpty) {
+        return; // User cancelled
+      }
+
+      final filePath = result.files.single.path;
+      if (filePath == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not read file path'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Read the file line by line
+      final file = File(filePath);
+      final lines = await file.readAsLines();
+
+      // Filter out empty lines and import
+      final vegetables = lines
+          .map((line) => line.trim())
+          .where((line) => line.isNotEmpty)
+          .toList();
+
+      if (vegetables.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No vegetables found in file'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Import vegetables using Riverpod notifier
+      final importedCount =
+          await ref.read(vegetablesProvider.notifier).import(vegetables);
+
+      // Show feedback
+      if (context.mounted) {
+        final totalInFile = vegetables.length;
+        final skippedCount = totalInFile - importedCount;
+        final message = importedCount == 0
+            ? 'No new vegetables to import (all duplicates)'
+            : skippedCount == 0
+                ? 'Imported $importedCount vegetables'
+                : 'Imported $importedCount vegetables ($skippedCount duplicates skipped)';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: importedCount > 0 ? Colors.green : null,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error importing file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   String _getTitle() {
     if (_isSelectionMode) {
       return '${_selectedVegetables.length} selected';
@@ -223,7 +306,41 @@ class _VegetablesListScreenState extends ConsumerState<VegetablesListScreen> {
         ),
       ];
     }
-    return const [ImportButton()];
+    return [
+      PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert),
+        tooltip: 'More options',
+        onSelected: (value) {
+          if (value == 'add') {
+            _showAddDialog(context);
+          } else if (value == 'import') {
+            _handleImport(context);
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'add',
+            child: Row(
+              children: [
+                Icon(Icons.add_circle_outline, size: 20, color: Colors.grey[800]),
+                const SizedBox(width: 12),
+                Expanded(child: const Text('Add vegetable')),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 'import',
+            child: Row(
+              children: [
+                Icon(Icons.upload_file, size: 20, color: Colors.grey[800]),
+                const SizedBox(width: 12),
+                Expanded(child: const Text('Import from file')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ];
   }
 
   @override
@@ -258,7 +375,7 @@ class _VegetablesListScreenState extends ConsumerState<VegetablesListScreen> {
                 : null,
             actions: vegetablesAsync.maybeWhen(
               data: (vegetables) => _buildAppBarActions(vegetables),
-              orElse: () => const [ImportButton()],
+              orElse: () => const [],
             ),
           ),
           body: vegetablesAsync.when(
@@ -318,13 +435,6 @@ class _VegetablesListScreenState extends ConsumerState<VegetablesListScreen> {
               ),
             ),
           ),
-          floatingActionButton: _isSelectionMode
-              ? null
-              : FloatingActionButton(
-                  onPressed: () => _showAddDialog(context),
-                  tooltip: 'Add Vegetable',
-                  child: const Icon(Icons.add),
-                ),
         ),
       ),
     );
